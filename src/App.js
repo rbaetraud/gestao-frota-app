@@ -6,20 +6,36 @@ import { Car, Users, DollarSign, Calendar, LayoutDashboard, Settings, Edit2, Che
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
 // --- CONFIGURAÇÃO DO FIREBASE ---
-// SUBSTITUA COM A SUA CONFIGURAÇÃO REAL DO FIREBASE
+// !! IMPORTANTE !!
+// SUBSTITUA O BLOCO ABAIXO COM A SUA CONFIGURAÇÃO REAL DO FIREBASE
+// Pode encontrá-la na consola do seu projeto Firebase, nas Definições do Projeto.
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY_REAL",
-  authDomain: "SEU_AUTH_DOMAIN_REAL",
-  projectId: "SEU_PROJECT_ID_REAL",
-  storageBucket: "SEU_STORAGE_BUCKET_REAL",
-  messagingSenderId: "SEU_MESSAGING_SENDER_ID_REAL",
-  appId: "SEU_APP_ID_REAL"
-};
+    apiKey: "AIzaSyBjIVEt51Yj5PL-NmjkHGq4Gz3euKjcEOQ",
+    authDomain: "fleetfox-ebudx.firebaseapp.com",
+    projectId: "fleetfox-ebudx",
+    storageBucket: "fleetfox-ebudx.firebasestorage.app",
+    messagingSenderId: "717200236729",
+    appId: "1:717200236729:web:cb1af9b8c665dc95087b68"
+  };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const appId = firebaseConfig.appId || 'gestao-frota-app'; // appId agora é retirado da configuração
+// --- INICIALIZAÇÃO DO FIREBASE (NÃO ALTERAR) ---
+let app;
+let auth;
+let db;
+let appId;
+
+// A inicialização só acontece se as chaves forem alteradas
+if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "SUA_API_KEY_REAL") {
+    try {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+        appId = firebaseConfig.appId;
+    } catch (error) {
+        console.error("Erro na inicialização do Firebase:", error);
+    }
+}
+
 
 // --- DADOS ---
 const vehicleData = {
@@ -89,6 +105,25 @@ const callGeminiAPI = async (prompt) => {
 };
 
 // --- COMPONENTES DA UI ---
+const ConfigurationError = () => (
+    <div className="flex flex-col items-center justify-center h-screen bg-red-50 text-red-800 p-8 text-center">
+        <AlertTriangle size={64} className="mb-4 text-red-500" />
+        <h1 className="text-3xl font-bold mb-2">Erro de Configuração do Firebase</h1>
+        <p className="max-w-2xl mb-4">
+            Parece que a configuração do Firebase ainda não foi adicionada ao código. A aplicação não pode funcionar sem estas chaves.
+        </p>
+        <div className="text-left bg-red-100 p-6 rounded-lg border border-red-200">
+            <h2 className="text-xl font-semibold mb-2">Como resolver:</h2>
+            <ol className="list-decimal list-inside space-y-2">
+                <li>Vá à sua <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="font-bold underline hover:text-red-900">consola do Firebase</a>.</li>
+                <li>Selecione o seu projeto e vá para as <strong>Configurações do projeto</strong> (ícone de engrenagem ⚙️).</li>
+                <li>Na secção <strong>"Seus apps"</strong>, encontre o objeto <strong>`firebaseConfig`</strong>.</li>
+                <li>Copie o objeto inteiro e cole-o no ficheiro <strong>`App.js`</strong>, substituindo o bloco de configuração de exemplo.</li>
+            </ol>
+        </div>
+    </div>
+);
+
 
 const Dashboard = ({ userId, setPage }) => {
     const [vehicles, setVehicles] = useState([]);
@@ -543,6 +578,11 @@ export default function App() {
     const [page, setPage] = useState('DASHBOARD');
     const [userId, setUserId] = useState(null);
     const [isAuthReady, setIsAuthReady] = useState(false);
+    
+    // Mostra um erro se as chaves do Firebase não forem preenchidas
+    if (!app) {
+        return <ConfigurationError />;
+    }
 
     useEffect(() => {
         const initAuth = async () => {
