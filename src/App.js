@@ -1,23 +1,25 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, setDoc, onSnapshot, collection, addDoc, query, getDoc, updateDoc, deleteDoc, writeBatch, orderBy } from 'firebase/firestore';
 import { Car, Users, DollarSign, Calendar, LayoutDashboard, Settings, Edit2, CheckCircle, PlusCircle, Trash2, X, ChevronDown, Tag, AlertTriangle, Search, Filter, XCircle, Wrench, TrendingUp, Bell, Sparkles, Copy, Loader2 } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
 // --- CONFIGURAÇÃO DO FIREBASE ---
+// SUBSTITUA COM A SUA CONFIGURAÇÃO REAL DO FIREBASE
 const firebaseConfig = {
-    apiKey: "AIzaSyBjIVEt51Yj5PL-NmjkHGq4Gz3euKjcEOQ",
-    authDomain: "fleetfox-ebudx.firebaseapp.com",
-    projectId: "fleetfox-ebudx",
-    storageBucket: "fleetfox-ebudx.firebasestorage.app",
-    messagingSenderId: "717200236729",
-    appId: "1:717200236729:web:cb1af9b8c665dc95087b68"
-  };
+  apiKey: "SUA_API_KEY_REAL",
+  authDomain: "SEU_AUTH_DOMAIN_REAL",
+  projectId: "SEU_PROJECT_ID_REAL",
+  storageBucket: "SEU_STORAGE_BUCKET_REAL",
+  messagingSenderId: "SEU_MESSAGING_SENDER_ID_REAL",
+  appId: "SEU_APP_ID_REAL"
+};
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const appId = firebaseConfig.appId || 'gestao-frota-app'; // appId agora é retirado da configuração
 
 // --- DADOS ---
 const vehicleData = {
@@ -545,9 +547,11 @@ export default function App() {
     useEffect(() => {
         const initAuth = async () => {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
-                else await signInAnonymously(auth);
-            } catch (error) { console.error("Authentication error:", error); }
+                // Para o site público, usamos sempre o login anónimo.
+                await signInAnonymously(auth);
+            } catch (error) { 
+                console.error("Authentication error:", error); 
+            }
         };
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) setUserId(user.uid); else setUserId(null);
