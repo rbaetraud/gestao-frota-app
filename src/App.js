@@ -10,22 +10,22 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 // SUBSTITUA O BLOCO ABAIXO COM A SUA CONFIGURAÇÃO REAL DO FIREBASE
 // Pode encontrá-la na consola do seu projeto Firebase, nas Definições do Projeto.
 const firebaseConfig = {
-    apiKey: "AIzaSyBjIVEt51Yj5PL-NmjkHGq4Gz3euKjcEOQ",
-    authDomain: "fleetfox-ebudx.firebaseapp.com",
-    projectId: "fleetfox-ebudx",
-    storageBucket: "fleetfox-ebudx.firebasestorage.app",
-    messagingSenderId: "717200236729",
-    appId: "1:717200236729:web:cb1af9b8c665dc95087b68"
-  };
+  apiKey: "SUA_API_KEY_REAL",
+  authDomain: "SEU_AUTH_DOMAIN_REAL",
+  projectId: "SEU_PROJECT_ID_REAL",
+  storageBucket: "SEU_STORAGE_BUCKET_REAL",
+  messagingSenderId: "SEU_MESSAGING_SENDER_ID_REAL",
+  appId: "SEU_APP_ID_REAL"
+};
 
 // --- INICIALIZAÇÃO DO FIREBASE (NÃO ALTERAR) ---
 let app;
 let auth;
 let db;
 let appId;
+const isConfigValid = firebaseConfig.apiKey && firebaseConfig.apiKey !== "SUA_API_KEY_REAL";
 
-// A inicialização só acontece se as chaves forem alteradas
-if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "SUA_API_KEY_REAL") {
+if (isConfigValid) {
     try {
         app = initializeApp(firebaseConfig);
         auth = getAuth(app);
@@ -578,16 +578,15 @@ export default function App() {
     const [page, setPage] = useState('DASHBOARD');
     const [userId, setUserId] = useState(null);
     const [isAuthReady, setIsAuthReady] = useState(false);
-    
-    // Mostra um erro se as chaves do Firebase não forem preenchidas
-    if (!app) {
-        return <ConfigurationError />;
-    }
 
     useEffect(() => {
+        if (!isConfigValid) {
+            setIsAuthReady(true); // Permite renderizar a mensagem de erro
+            return;
+        }
+
         const initAuth = async () => {
             try {
-                // Para o site público, usamos sempre o login anónimo.
                 await signInAnonymously(auth);
             } catch (error) { 
                 console.error("Authentication error:", error); 
@@ -600,6 +599,10 @@ export default function App() {
         initAuth();
         return () => unsubscribe();
     }, []);
+
+    if (!isConfigValid) {
+        return <ConfigurationError />;
+    }
 
     const renderPage = () => {
         if (!isAuthReady) return <div className="flex justify-center items-center h-full"><div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div><p className="ml-4 text-gray-600">Autenticando...</p></div>;
